@@ -54,6 +54,13 @@ document.addEventListener('DOMContentLoaded', async function() {
         e.target.tagName, String(e.target.src || e.target.href || ''));
       return;
     }
+    // "Script error." with no file/line is the browser's opaque report for a
+    // script from another origin (browser extensions, in-app browsers). It
+    // carries nothing actionable and isn't from this page — log, don't paint.
+    if (/^Script error\.?$/.test(e.message || '') && !e.filename) {
+      console.warn('[bundle] cross-origin script error (ignored)');
+      return;
+    }
     var p = document.body || document.documentElement;
     var d = document.getElementById('__bundler_err') || p.appendChild(document.createElement('div'));
     d.id = '__bundler_err';
